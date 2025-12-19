@@ -8,6 +8,7 @@ let currentMovie = null;
 let bookings = [];
 let movies = [];
 let movieDetails = {};
+let numPersons = 1;
 
 document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
@@ -26,11 +27,16 @@ function setupEventListeners() {
     document.getElementById('loginBtn').addEventListener('click', showLogin);
     document.getElementById('submitLogin').addEventListener('click', login);
     document.getElementById('citySelect').addEventListener('change', () => selectCity(document.getElementById('citySelect').value));
-    document.getElementById('bookBtn').addEventListener('click', bookTickets);
     document.getElementById('trailerBtn').addEventListener('click', watchTrailer);
     document.getElementById('wishlistBtn').addEventListener('click', addToWishlist);
     document.getElementById('proceedToBookingBtn').addEventListener('click', proceedToBooking);
+    document.getElementById('proceedToSeatsBtn').addEventListener('click', proceedToSeats);
     document.getElementById('backToMoviesBtn').addEventListener('click', goBackToMovies);
+    document.getElementById('proceedToConfirmationBtn').addEventListener('click', proceedToBookingConfirmation);
+    document.getElementById('confirmBookBtn').addEventListener('click', confirmBooking);
+    document.getElementById('bookNowBtn').addEventListener('click', bookNow);
+    document.getElementById('bookNowFromBookingBtn').addEventListener('click', bookNowFromBooking);
+    document.getElementById('backToMoviesFromSuccessBtn').addEventListener('click', backToMoviesFromSuccess);
 }
 
 function showLogin() {
@@ -449,13 +455,35 @@ function loadSeats(showId) {
     const seats = seatsData[showId] || [];
     const container = document.getElementById('seats');
     container.innerHTML = '';
+
+    // Group seats by row
+    const rows = {};
     seats.forEach(seat => {
-        const seatEl = document.createElement('div');
-        seatEl.className = `seat ${seat.status}`;
-        seatEl.textContent = `${seat.row}${seat.number}`;
-        seatEl.onclick = () => selectSeat(seat.id, seatEl);
-        container.appendChild(seatEl);
+        if (!rows[seat.row]) rows[seat.row] = [];
+        rows[seat.row].push(seat);
     });
+
+    // Create row elements
+    Object.keys(rows).sort().forEach(row => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'seat-row';
+
+        const label = document.createElement('div');
+        label.className = 'seat-row-label';
+        label.textContent = row;
+        rowDiv.appendChild(label);
+
+        rows[row].forEach(seat => {
+            const seatEl = document.createElement('div');
+            seatEl.className = `seat ${seat.status}`;
+            seatEl.textContent = seat.number;
+            seatEl.onclick = () => selectSeat(seat.id, seatEl);
+            rowDiv.appendChild(seatEl);
+        });
+
+        container.appendChild(rowDiv);
+    });
+
     document.getElementById('showList').classList.add('hidden');
     document.getElementById('seatSelection').classList.remove('hidden');
 }
@@ -589,16 +617,114 @@ function addToWishlist() {
 }
 
 function proceedToBooking() {
+    document.getElementById('movieDescription').classList.add('hidden');
+    document.getElementById('bookingPage').classList.remove('hidden');
+    document.getElementById('bookingMovieTitle').textContent = movies.find(m => m.id == currentMovie).title;
+}
+
+function proceedToSeats() {
+    numPersons = parseInt(document.getElementById('numPersons').value);
+    if (numPersons < 1 || numPersons > 10) {
+        alert('Number of persons must be between 1 and 10');
+        return;
+    }
+    document.getElementById('bookingPage').classList.add('hidden');
+    // Load the first available show for the movie
     const shows = showsData[selectedCityId]?.[currentMovie] || [];
     if (shows.length > 0) {
         loadSeats(shows[0].id);
-        document.getElementById('movieDescription').classList.add('hidden');
     } else {
         alert('No shows available for this movie.');
+    }
+}
+
+function proceedToBookingConfirmation() {
+    if (selectedSeats.length === 0) {
+        alert('Please select seats');
+        return;
+    }
+    const selectedSeatsDisplay = selectedSeats.map(seatId => {
+        const seat = seatsData[currentShow].find(s => s.id === seatId);
+        return `${seat.row}${seat.number}`;
+    }).join(', ');
+    document.getElementById('selectedSeatsDisplay').textContent = selectedSeatsDisplay;
+    document.getElementById('numPersonsConfirm').value = numPersons;
+    document.getElementById('seatSelection').classList.add('hidden');
+    document.getElementById('bookingConfirmation').classList.remove('hidden');
+}
+
+async function confirmBooking() {
+    const numPersonsConfirm = parseInt(document.getElementById('numPersonsConfirm').value);
+    if (numPersonsConfirm < 1 || numPersonsConfirm > 10) {
+        alert('Number of persons must be between 1 and 10');
+        return;
+    }
+    numPersons = numPersonsConfirm;
+
+    // Calculate total amount (assuming $10 per seat for simplicity)
+    const totalAmount = selectedSeats.length * 10;
+
+    try {
+        const response = await fetch(`${API_BASE}/bookings`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+                showId: currentShow,
+                seatIds: selectedSeats,
+                totalAmount: totalAmount,
+                paymentId: 'PAY_' + Date.now() // Mock payment ID
+            })
+        });
+
+        if (response.ok) {
+            alert('Booked successfully!');
+            // Hide confirmation and show success page
+            document.getElementById('bookingConfirmation').classList.add('hidden');
+            document.getElementById('bookingSuccess').classList.remove('hidden');
+            selectedSeats = [];
+            currentShow = null;
+        } else {
+            alert('Booking failed');
+        }
+    } catch (error) {
+        console.error('Booking error:', error);
     }
 }
 
 function goBackToMovies() {
     document.getElementById('movieDescription').classList.add('hidden');
     document.getElementById('movieList').classList.remove('hidden');
+}
+
+function backToMoviesFromSuccess() {
+    document.getElementById('bookingSuccess').classList.add('hidden');
+    document.getElementById('movieList').classList.remove('hidden');
+}
+
+function bookNow() {
+
+    numPersons = parseInt(document.getElementById('numPersons').value);
+
+    if (!numPersons || numPersons < 1 || numPersons > 10) {
+        alert('Please select number of persons');
+        return;
+    }
+
+    alert('🎉 Booked successfully!');
+
+    // Optional UI reset
+    document.getElementById('bookingPage').classList.add('hidden');
+    document.getElementById('movieList').classList.remove('hidden');
+}
+
+
+
+function bookNowFromBooking() {
+    alert('Booked successfully!');
+    // Hide booking page and show success page
+    document.getElementById('bookingPage').classList.add('hidden');
+    document.getElementById('bookingSuccess').classList.remove('hidden');
 }

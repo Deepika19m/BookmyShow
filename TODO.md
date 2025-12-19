@@ -8,6 +8,8 @@
 - [x] Ensure clicking "Book Now" on a movie loads shows
 - [x] Update show display to include available seats and booking options
 - [x] Add "Back to Movies" button functionality
+- [x] Add "Show Seats for All Shows" button in show list
+- [x] Implement bulk booking functionality for multiple members (1-10)
 - [x] Test the updated flow (skipped as per user request)
 
 ## Backend Authentication

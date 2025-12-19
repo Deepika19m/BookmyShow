@@ -49,14 +49,33 @@
                     <h2>Shows</h2>
                     <div id="shows"></div>
                 </div>
+                <div id="bookingPage" class="hidden">
+                    <h2>Booking for <span id="bookingMovieTitle"></span></h2>
+                    <label for="numPersons">Number of Persons:</label>
+                    <input type="number" id="numPersons" min="1" max="10" value="1">
+                    <button id="proceedToSeatsBtn">Proceed to Seat Selection</button>
+                    <button id="bookNowFromBookingBtn">Book Now</button>
+                </div>
                 <div id="seatSelection" class="hidden">
                     <h2>Select Seats</h2>
                     <div id="seats"></div>
-                    <button id="bookBtn">Book Tickets</button>
+                    <button id="bookNowBtn">Book Now</button>
+                </div>
+                <div id="bookingConfirmation" class="hidden">
+                    <h2>Confirm Booking</h2>
+                    <p>Selected Seats: <span id="selectedSeatsDisplay"></span></p>
+                    <label for="numPersonsConfirm">Number of Persons:</label>
+                    <input type="number" id="numPersonsConfirm" min="1" max="10" value="1">
+                    <button id="confirmBookBtn">Book Now</button>
                 </div>
                 <div id="bookingHistory" class="hidden">
                     <h2>My Bookings</h2>
                     <div id="bookings"></div>
+                </div>
+                <div id="bookingSuccess" class="hidden">
+                    <h2>Booking Successful!</h2>
+                    <p>Your tickets have been booked successfully.</p>
+                    <button id="backToMoviesFromSuccessBtn">Back to Movies</button>
                 </div>
             </div>
         </main>
