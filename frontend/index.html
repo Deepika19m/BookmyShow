@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookMyShow</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>BookMyShow</h1>
+            <nav id="nav">
+                <button id="loginBtn">Login</button>
+            </nav>
+        </header>
+        <main>
+            <div id="auth" class="hidden">
+                <div id="loginForm">
+                    <h2>Login</h2>
+                    <input type="text" id="loginUsername" placeholder="Username">
+                    <input type="password" id="loginPassword" placeholder="Password">
+                    <button id="submitLogin">Login</button>
+                </div>
+            </div>
+            <div id="dashboard" class="hidden">
+                <div id="citySelection">
+                    <h2>Select City</h2>
+                    <select id="citySelect">
+                        <option value="">Select a city</option>
+                    </select>
+                </div>
+                <div id="cityShowList" class="hidden">
+                    <h2>Shows in Selected City</h2>
+                    <div id="cityShows"></div>
+                </div>
+                <div id="movieList" class="hidden">
+                    <h2>Movies</h2>
+                    <div id="movies"></div>
+                </div>
+                <div id="movieDescription" class="hidden">
+                    <h2 id="movieTitle"></h2>
+                    <div id="movieDetails"></div>
+                    <button id="trailerBtn">🎞️ Trailer</button>
+                    <button id="wishlistBtn">❤️ Add to Wishlist</button>
+                    <button id="proceedToBookingBtn">Proceed to Booking</button>
+                </div>
+                <div id="showList" class="hidden">
+                    <h2>Shows</h2>
+                    <div id="shows"></div>
+                </div>
+                <div id="seatSelection" class="hidden">
+                    <h2>Select Seats</h2>
+                    <div id="seats"></div>
+                    <button id="bookBtn">Book Tickets</button>
+                </div>
+                <div id="bookingHistory" class="hidden">
+                    <h2>My Bookings</h2>
+                    <div id="bookings"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
